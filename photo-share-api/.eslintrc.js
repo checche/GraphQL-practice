@@ -5,7 +5,7 @@ module.exports = {
     es2020: true,
   },
   extends: [
-    'airbnb-base',
+    'eslint:recommended',
   ],
   parserOptions: {
     ecmaVersion: 11,
