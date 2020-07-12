@@ -3,53 +3,9 @@ const expressPlayground = require("graphql-playground-middleware-express")
 const { ApolloServer } = require("apollo-server-express");
 const express = require("express");
 const { GraphQLScalarType } = require("graphql");
+const { readFileSync } = require("fs");
 
-const typeDefs = `
-  scalar DateTime
-
-  enum PhotoCategory {
-    SELFIE
-    PORTRAIT
-    ACTION
-    LANDSCAPE
-    GRAPHIC
-  }
-
-  type Photo {
-    id: ID!
-    url: String!
-    name: String!
-    description: String
-    category: PhotoCategory!
-    postedBy: User!
-    taggedUsers: [User!]!
-    created: DateTime!
-  }
-
-  type User {
-    githubLogin: ID!
-    name: String
-    avatar: String
-    postedPhotos: [Photo!]!
-    inPhotos: [Photo!]!
-  }
-
-  input PostPhotoInput {
-    name: String!
-    category: PhotoCategory=PORTRAIT
-    description: String
-  }
-
-  type Query {
-    totalPhotos: Int!
-    allPhotos: [Photo!]!
-  }
-
-  type Mutation {
-    postPhoto(input: PostPhotoInput): Photo!
-  }
-
-`;
+const typeDefs = readFileSync("./typeDefs.graphql", "UTF-8");
 
 let id = 0;
 
