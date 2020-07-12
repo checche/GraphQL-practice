@@ -3,25 +3,40 @@ const expressPlayground = require("graphql-playground-middleware-express")
 const { ApolloServer } = require("apollo-server-express");
 const express = require("express");
 const { readFileSync } = require("fs");
+const { MongoClient } = require("mongodb");
+require("dotenv").config();
 
 const typeDefs = readFileSync("./typeDefs.graphql", "UTF-8");
 const resolvers = require("./resolvers");
 
-var app = express();
+async function start() {
+  const app = express();
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-});
+  const MONGO_DB = process.env.DB_HOST;
 
-server.applyMiddleware({ app });
+  const client = await MongoClient.connect(MONGO_DB, { useNewUrlParser: true });
 
-app.get("/", (req, res) => res.end("Welcome to hte PhotoShare API"));
+  const db = client.db();
 
-app.get("/playground", expressPlayground({ endpoint: "/graphql" }));
+  const context = { db };
 
-app.listen({ port: 4000 }, () =>
-  console.log(
-    `GraphQL Server running @ http://localhost:4000${server.graphqlPath}`
-  )
-);
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context,
+  });
+
+  server.applyMiddleware({ app });
+
+  app.get("/", (req, res) => res.end("Welcome to hte PhotoShare API"));
+
+  app.get("/playground", expressPlayground({ endpoint: "/graphql" }));
+
+  app.listen({ port: 4000 }, () =>
+    console.log(
+      `GraphQL Server running @ http://localhost:4000${server.graphqlPath}`
+    )
+  );
+}
+
+start();
